@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'ProducerConsumer using sleep'
+'Producer Consumer Pattern: using sleep'
 
 
 from threading import Thread, Lock
