@@ -1,26 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'ProducerConsumer using sleep'
+'ProducerConsumer using condition, fixed-sized queue'
 
-
-from threading import Thread, Lock
+from threading import Thread, Lock, Condition
 import time
 import random
 
+MAX_CAP = 10
 que = []
-lock = Lock()
+condition = Condition()
+
 
 class ProducerThread(Thread):
     def run(self):
         nums = range(5)
         global que
         while True:
-            num = random.choice(nums)
-            lock.acquire()
+            condition.acquire()
+            if len(que) == MAX_CAP:
+                print("Queue full")
+                condition.wait()
+                print("Producer continue...")
+            num = random.choice(nums)           
             que.append(num)
             print("Produced", num)
-            lock.release()
+            condition.notify()
+            condition.release()
             time.sleep(random.random()*2)
 
 
@@ -28,13 +34,15 @@ class ConsumerThread(Thread):
     def run(self):
         global que
         while True:
+            condition.acquire()
             while not que:
                 print("Nothing in que")
-                time.sleep(random.random())
-            lock.acquire()
+                condition.wait()
+                print("Consumer continue...")
             num = que.pop(0)
             print("Consumed", num)
-            lock.release()
+            condition.notify()
+            condition.release()
             time.sleep(random.random())
 
 
